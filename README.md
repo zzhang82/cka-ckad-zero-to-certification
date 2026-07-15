@@ -2,6 +2,8 @@
 
 An English-first, Windows/WSL2-based learning system for reactivating prior Kubernetes knowledge and reaching exam-ready performance for the Certified Kubernetes Administrator (CKA) and Certified Kubernetes Application Developer (CKAD) exams.
 
+[![repository-quality](https://github.com/zzhang82/cka-ckad-zero-to-certification/actions/workflows/quality.yml/badge.svg)](https://github.com/zzhang82/cka-ckad-zero-to-certification/actions/workflows/quality.yml)
+
 Status: **Week 0 environment gate passed; learner placement diagnostic pending**. The repository contains the planning baseline, pinned WSL toolchain, tested single-node and multi-node lab profiles, smoke grader, source policy, and acceptance standard. Week 0 does not pass until the learner completes the diagnostic and remediation map.
 
 ## Outcome
@@ -77,6 +79,13 @@ The reference learner is not starting from zero: they previously built Kubernete
 To begin the current checkpoint, open [Week 0 — Start Here](weeks/week-00/START_HERE.md). The workstation setup has been independently exercised; see the [Week 0 environment verification report](docs/en/WEEK0_ENVIRONMENT_VERIFICATION_2026-07-15.md).
 
 Repository structure and environment operations are defined in [Architecture](ARCHITECTURE.md) and [Environment Lifecycle](docs/en/ENVIRONMENT_LIFECYCLE.md).
+
+## Collaborate
+
+- Track the program on the public [CKA + CKAD 12-Week Plan](https://github.com/users/zzhang82/projects/1).
+- Discuss or help with a specific week through the [weekly curriculum issues](https://github.com/zzhang82/cka-ckad-zero-to-certification/issues?q=is%3Aissue+label%3Acurriculum-week).
+- Week 0 is active; later weeks remain backlog until their `START_HERE`, labs, scenarios, and graders are implemented and validated.
+- A repository license has not been selected yet. Viewing, cloning, and discussion are welcome; formal redistribution and adaptation terms will be added after the license decision.
 
 ## Independence and ethics
 
