@@ -1,0 +1,32 @@
+{
+  "$schema": "../../schemas/week.schema.json",
+  "id": "week-00",
+  "title": "Environment Contract and Diagnostic Baseline",
+  "track": "shared",
+  "status": "active",
+  "planned_hours": 10,
+  "target": "Create, inspect, destroy, and recreate an isolated Kubernetes v1.35 lab twice, then produce a diagnostic remediation map.",
+  "resource_ids": [
+    "lf-cka-ckad-instructions",
+    "lf-allowed-resources",
+    "cncf-curriculum",
+    "k8s-kubectl-install",
+    "k8s-kubectl-quick-reference",
+    "kind-quick-start"
+  ],
+  "deliverables": [
+    "Pinned version matrix",
+    "Doctor and bootstrap evidence",
+    "Two successful cluster lifecycle records",
+    "Command and troubleshooting diagnostic",
+    "Green/Yellow/Red remediation map"
+  ],
+  "acceptance": [
+    "WSL2, systemd, cgroup v2, and native Docker are healthy",
+    "kubectl, kind, Helm 4, Helm 3 compatibility, and yq match pinned versions",
+    "The project kubeconfig is isolated from unrelated contexts",
+    "The pinned cluster lifecycle and smoke test pass twice",
+    "Teardown affects only project-owned resources",
+    "Every diagnostic Yellow or Red item has a scheduled follow-up"
+  ]
+}

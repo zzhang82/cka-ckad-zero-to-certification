@@ -1,0 +1,6 @@
+service/web
+pod/cache
+deployment/web
+pod/cache
+configmap/app
+service/web

@@ -1,0 +1,18 @@
+# Local learner data and generated outputs
+learner-state/
+dist/
+.state/
+
+# Python and editor state
+__pycache__/
+*.py[cod]
+.venv/
+.vscode/
+
+# Generated scenario archives
+*.zip
+*.sha256
+
+# OS noise
+.DS_Store
+Thumbs.db

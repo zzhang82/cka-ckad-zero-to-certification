@@ -1,0 +1,4 @@
+configmap
+deployment
+pod
+service

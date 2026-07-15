@@ -1,0 +1,25 @@
+name: repository-quality
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate curriculum contracts and source catalog
+        run: python scripts/quality/validate_repo.py
+      - name: Validate repository-local Markdown links
+        run: python scripts/quality/check_links.py
+      - name: Check Bash syntax
+        run: bash -n scripts/environment/*.sh scripts/quality/*.sh labs/shared/week0-smoke/*.sh diagnostics/week0-placement/*.sh
+      - name: Test target-safety guards
+        run: bash scripts/quality/test_target_guards.sh

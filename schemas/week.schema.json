@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CKA/CKAD weekly execution contract",
+  "type": "object",
+  "required": ["id", "title", "track", "status", "planned_hours", "target", "resource_ids", "deliverables", "acceptance"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^week-(0[0-9]|1[0-2])$"},
+    "title": {"type": "string", "minLength": 1},
+    "track": {"enum": ["shared", "cka", "ckad", "remediation"]},
+    "status": {"enum": ["planned", "active", "passed", "conditional", "repeat"]},
+    "planned_hours": {"type": "number", "minimum": 1, "maximum": 40},
+    "target": {"type": "string", "minLength": 1},
+    "resource_ids": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "deliverables": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "acceptance": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+  }
+}

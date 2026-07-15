@@ -1,0 +1,12 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    labels:
+      lab.cka-ckad.io/profile: shared-multinode
+  - role: worker
+    labels:
+      lab.cka-ckad.io/profile: shared-multinode
+  - role: worker
+    labels:
+      lab.cka-ckad.io/profile: shared-multinode
