@@ -1,123 +1,102 @@
-# Week 0 — Environment Contract and Diagnostic Baseline
+# Week 0 — Environment and Placement
 
-Suggested time: 8–10 focused hours.
+**Goal:** prove a clean, isolated Kubernetes lab lifecycle twice, then measure what you can do without hints.
 
-## Target
+**Time:** 8–10 focused hours.
 
-Prove that the workstation can create, use, destroy, and recreate an isolated Kubernetes v1.35 lab, then measure current command and troubleshooting ability.
+**Result:** an evidence-based Green/Yellow/Red map that decides how much of Weeks 1–3 you may compress.
 
-Week 0 is not a Kubernetes installation course. It separates three environments:
+## Before you begin
 
-1. **Physical exam host** — Windows runs PSI Secure Browser.
-2. **Remote exam environment** — Linux desktop, then SSH into the designated task host; task hosts provide `kubectl`, `yq`, curl/wget, man pages, and sudo.
-3. **Local study environment** — WSL2 supplies a repeatable lab. Client tools are installed here; cluster-node installation work is practiced later in disposable machines.
+You should be able to use a Linux shell, read basic YAML, and explain containers, ports, DNS, and HTTP. If not, complete the [prerequisite checks](../../docs/en/prerequisites/README.md) first.
 
-## Part A — Administrative baseline
+Read the short [Week 0 resource list](RESOURCES.md). Do not start by reading the internal scripts or placement grader.
 
-Record in ignored `learner-state/`, not public Git:
+## 1. Initialize your private workspace
 
-- CKA and CKAD eligibility dates;
-- LFS258/LFS259 access dates;
-- exact bundle SKU;
-- retake and Killer.sh entitlement;
-- weekly study blocks and blackout dates.
-
-## Part B — Verify the measured host
-
-Run the Windows doctor and confirm, rather than reconfigure:
-
-- Windows build, CPU, RAM, and disk headroom;
-- firmware virtualization and hypervisor state;
-- Hyper-V, Virtual Machine Platform, and WSL2;
-- default `Ubuntu-24.04-D` distro;
-- systemd and cgroup v2;
-- native WSL Docker client/server health;
-- Docker Desktop is not the active dependency.
-
-Commands:
-
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/environment/doctor-windows.ps1
-wsl -d Ubuntu-24.04-D -- bash -lc "cd /mnt/c/Users/frank/Documents/CKAD && bash scripts/environment/doctor-wsl.sh --preflight"
-```
-
-## Part C — Minimal WSL toolchain
-
-Install only:
-
-- `kubectl` pinned to the current exam minor;
-- `kind` with a digest-pinned Kubernetes v1.35 node image;
-- current Helm 4 as `helm` plus maintained Helm 3 as `helm3` for course/chart compatibility;
-- `yq` v4.
-
-Existing Docker, jq, Git, Python, vim, SSH, curl, wget, and Bash completion are sufficient.
-
-Do not install minikube, k3d, Podman, `kubeadm`, `kubelet`, `crictl`, or a standalone Kustomize binary in Week 0. CKA node installation, upgrades, runtime, systemd, and failure recovery will use disposable Linux nodes in Week 3.
-
-Bootstrap command, after reviewing the version lock:
+From this repository in WSL:
 
 ```bash
-bash scripts/environment/bootstrap-wsl.sh
-bash scripts/environment/doctor-wsl.sh --ready
+bash ./study init --profile rusty
+bash ./study open week-00
 ```
 
-## Part D — Isolation contract
+Use `beginner` or `operator` if [another starting path](../../docs/en/getting-started/CHOOSE_YOUR_PATH.md) fits better. Record voucher/course access dates and study blocks in `learner-state/profile.yaml`; never commit them.
 
-- Use cluster name `cka-ckad-week0`.
-- Use project kubeconfig `${HOME}/.local/state/cka-ckad-lab/kubeconfig`.
-- Do not merge with `~/.kube/config` or a workplace kubeconfig.
-- Every reset/teardown command must name the project cluster explicitly.
-- Report the active Docker context and server before creating a cluster.
-- Use the repo-provided exam-mode shell setup rather than permanent aliases.
+## 2. Check Windows and WSL
 
-## Part E — Environment proof, repeated twice
+Run from WSL:
 
-1. Run ready-mode doctor.
-2. Create the digest-pinned cluster.
-3. Inspect context, cluster info, nodes, namespaces, and API resources.
-4. Run `labs/shared/week0-smoke/seed.sh`.
-5. Run `labs/shared/week0-smoke/grade.sh` and inspect the workload manually.
-6. Run `labs/shared/week0-smoke/reset.sh`.
-9. Delete `cka-ckad-week0`.
-10. Verify no project cluster remains.
-11. Recreate and repeat.
+```bash
+bash ./study doctor windows
+bash ./study doctor wsl --preflight
+```
 
-Use [the smoke-lab instructions](../../labs/shared/week0-smoke/README.md) for the exact commands and acceptance criteria.
+The doctors inspect the host; they do not install or reconfigure it. Resolve every failure before continuing. A preflight warning for a missing pinned study tool is expected before bootstrap.
 
-## Part F — 60–90 minute placement diagnostic
+## 3. Install only the pinned study tools
 
-Use the runnable [Week 0 placement diagnostic](../../diagnostics/week0-placement/README.md). It fixes the task denominator, timebox, allowed resources, machine-checked score, manual evidence rubric, Green/Yellow/Red rules, and remediation trigger.
+Review the [setup and lifecycle guide](../../docs/en/setup/WINDOWS_WSL.md), then run:
 
-Sample:
+```bash
+bash ./study tools bootstrap
+bash ./study doctor wsl --ready
+```
 
-- shell navigation, pipes, redirection, search, permissions, and editing;
-- YAML structure and fast field changes;
-- contexts, namespaces, discovery, and API resources;
-- Pods, Deployments, Services, ConfigMaps, and Secrets;
-- rollout, scale, logs, events, describe, exec, and port-forward;
-- one broken image/configuration workload;
-- one Service selector or DNS failure;
-- basic scheduling, storage, and architecture reasoning;
-- final-state verification.
+This installs the repository's pinned `kubectl`, `kind`, Helm 4, compatibility `helm3`, and `yq`. It does not install `kubeadm`, `kubelet`, or a second local cluster platform; those are not Week 0 goals.
 
-Classification:
+## 4. Prove the lab lifecycle twice
 
-- **Green** — unseen task completed without hints and explained correctly; compress related lessons.
-- **Yellow** — correct model but slow or documentation-dependent; retain drills and a short review.
-- **Red** — unable to complete or diagnose; complete the full lesson and remediation lab.
+Before any learner `kubectl` command, enter the isolated shell and keep that prompt open:
 
-Recognition of terminology alone is not Green.
+```bash
+bash ./study shell
+```
+
+The shell loads your normal Bash preferences first, then overrides `KUBECONFIG` with this repository's `.state/kubeconfig`. Open the [environment smoke proof](LAB.md) and complete the full sequence twice from that prompt:
+
+```bash
+bash ./study env up week0-single
+bash ./study lab seed week0-smoke
+bash ./study lab grade week0-smoke
+bash ./study env evidence week0-single
+bash ./study lab reset week0-smoke
+bash ./study env down week0-single
+```
+
+The second run must start from an absent cluster. Record timing, failures, recovery, Docker context, and final output in `learner-state/weeks/week-00/EVIDENCE.md`.
+
+## 5. Take the placement diagnostic
+
+Stay in the study shell, create a fresh cluster, then follow the [90-minute placement diagnostic](DIAGNOSTIC.md):
+
+```bash
+bash ./study env up week0-single
+bash ./study diagnostic seed week0-placement
+```
+
+Do not inspect `_project/diagnostics/` after the timer begins. The public task sheet and official documentation are sufficient.
+
+## 6. Turn results into a route
+
+For each sampled skill, record:
+
+- **Green:** correct without hints, safe, verified, and explained;
+- **Yellow:** correct but slow, documentation-dependent, or incompletely explained;
+- **Red:** incomplete, unsafe, guessed, or solved with hidden help.
+
+Schedule one repeat task for every Yellow or Red area. A high total never cancels a Red context, namespace, or destructive-scope result.
 
 ## Acceptance gate
 
-- [ ] Windows/WSL doctors contain no blocker.
-- [ ] All pinned client tools, including both Helm lanes, match the version lock.
-- [ ] Docker Desktop is not an accidental dependency.
-- [ ] Project kubeconfig is isolated.
-- [ ] Cluster lifecycle succeeds twice.
-- [ ] Teardown is scoped to project resources.
-- [ ] Diagnostic evidence covers every sampled area.
-- [ ] Every Yellow/Red result has a scheduled follow-up.
-- [ ] No VM platform, site framework, or full mock bank was built prematurely.
+- [ ] Windows and WSL doctors report no failure.
+- [ ] The ready doctor confirms every pinned tool.
+- [ ] `learner-state/` and `.state/` are Git-ignored.
+- [ ] The cluster and smoke proof succeed twice from a clean start.
+- [ ] No unrelated kubeconfig, context, cluster, or namespace changes.
+- [ ] The timed diagnostic and manual scorecard are complete.
+- [ ] Every Yellow or Red result has a repeat task and due week.
 
 Verdict: `PASS` / `CONDITIONAL` / `REPEAT`
+
+Next: [Week 1 preview](../week-01/README.md). Week 1 labs and grader must be published before its gate can be claimed.

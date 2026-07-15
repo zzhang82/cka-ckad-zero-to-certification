@@ -16,10 +16,24 @@ jobs:
         with:
           python-version: "3.12"
       - name: Validate curriculum contracts and source catalog
-        run: python scripts/quality/validate_repo.py
+        run: python _project/scripts/quality/validate_repo.py
       - name: Validate repository-local Markdown links
-        run: python scripts/quality/check_links.py
+        run: python _project/scripts/quality/check_links.py
       - name: Check Bash syntax
-        run: bash -n scripts/environment/*.sh scripts/quality/*.sh labs/shared/week0-smoke/*.sh diagnostics/week0-placement/*.sh
+        run: bash -n study _project/scripts/environment/*.sh _project/scripts/learner/*.sh _project/scripts/quality/*.sh _project/labs/shared/week0-smoke/*.sh _project/diagnostics/week0-placement/*.sh
+      - name: Test placement-grader contracts
+        run: python _project/diagnostics/week0-placement/test_grader.py
       - name: Test target-safety guards
-        run: bash scripts/quality/test_target_guards.sh
+        run: |
+          bash _project/scripts/quality/test_target_guards.sh
+          bash _project/scripts/quality/test_study_cli.sh
+      - name: Test private learner workspace
+        run: |
+          bash ./study init --profile rusty
+          bash ./study open week-00
+          bash ./study status
+          git check-ignore learner-state/profile.yaml .state/kubeconfig
+          test -z "$(git ls-files -- learner-state .state)"
+          test -f learner-state/weeks/week-00/PLAN.md
+          test -f learner-state/weeks/week-00/EVIDENCE.md
+          test -z "$(git status --porcelain)"
