@@ -33,7 +33,7 @@ export KUBECONFIG="${CKA_CKAD_STATE_DIR}/kubeconfig"
 mkdir -p "$CKA_CKAD_STATE_DIR"
 
 require_ready() {
-  "$SCRIPT_DIR/doctor-wsl.sh" --ready
+  bash "$SCRIPT_DIR/doctor-wsl.sh" --ready
 }
 
 project_kubectl() {
