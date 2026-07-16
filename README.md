@@ -25,6 +25,8 @@ bash ./study open week-00
 
 Use `beginner`, `rusty`, or `operator` as the profile. The command creates an ignored local workspace for your plan, notes, evidence, and retrospective. Both `learner-state/` and `.state/` are Git-ignored by default.
 
+If you keep personal study records in a separate private repository, connect its journal with the documented [external learner workspace](docs/en/getting-started/EXTERNAL_LEARNER_WORKSPACE.md). Runtime state and kubeconfig still remain under this repository's ignored `.state/`.
+
 To open the repository and your private Week 0 workspace together in VS Code:
 
 ```bash
@@ -58,7 +60,8 @@ LFS258 and LFS/LFD259 are the recommended paid course spine. The public directio
 | Area | Who it is for | What belongs there |
 |---|---|---|
 | `weeks/`, `resources/`, `docs/en/` | Learners | Weekly directions, curated reading, and setup help |
-| `learner-state/`, `.state/` | You, locally | Private notes, evidence, scores, kubeconfig, and runtime state; Git-ignored |
+| `learner-state/` or an external learner directory | You, privately | Plans, notes, evidence, scores, and retrospectives |
+| `.state/` | Runtime tooling, locally | Kubeconfig and temporary runtime files; Git-ignored in this repository |
 | `_project/` | Maintainers and automation | Scripts, templates, graders, schemas, planning, and verification evidence |
 
 Learners should not need to browse `_project/`; use the stable `bash ./study ...` commands shown in each week.

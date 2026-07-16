@@ -33,7 +33,7 @@ registry.k8s.io/e2e-test-images/agnhost:2.53@sha256:99c6b4bb4a1e1df3f0b3752168c8
 
 Each area is worth 10 points. Areas 1, 2, and 4–9 are machine-checked for 80 points; Areas 3 and 10 use the private scorecard for 20 points.
 
-1. From `learner-state/weeks/week-00/placement/objects.txt`, produce a sorted unique list of object kinds before `/`. Save it as `learner-state/weeks/week-00/placement/kinds.txt`.
+1. From `$CKA_CKAD_LEARNER_DIR/weeks/week-00/placement/objects.txt`, produce a sorted unique list of object kinds before `/`. Save it as `$CKA_CKAD_LEARNER_DIR/weeks/week-00/placement/kinds.txt`.
 2. Create a Running Pod `yaml-proof` in `week0-diagnostic`. It must have label `diagnostic=yaml`, use the provided image, and run `agnhost pause`.
 3. Record the current context, namespace, server version, node count, and verification commands before making changes.
 4. Repair Deployment `web` so it uses the provided image and reaches three available replicas.
@@ -49,9 +49,9 @@ Each area is worth 10 points. Areas 1, 2, and 4–9 are machine-checked for 80 p
 At the hard stop:
 
 ```bash
-bash ./study diagnostic grade week0-placement | tee learner-state/weeks/week-00/placement/grade.txt
+bash ./study diagnostic grade week0-placement | tee "$CKA_CKAD_LEARNER_DIR/weeks/week-00/placement/grade.txt"
 bash ./study diagnostic reset week0-placement
 bash ./study env down week0-single
 ```
 
-Complete `learner-state/weeks/week-00/placement/SCORECARD.md`. Use Green = 10, Yellow = 5, Red = 0. Schedule a repeat for every Yellow or Red result before passing Week 0.
+Complete `placement/SCORECARD.md` under the learner directory printed by `bash ./study status`. Use Green = 10, Yellow = 5, Red = 0. Schedule a repeat for every Yellow or Red result before passing Week 0.

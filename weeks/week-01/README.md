@@ -19,6 +19,6 @@
 - Create and explain the required objects without a solution.
 - Use explicit context and namespace targeting.
 - Diagnose one Pod and one Service failure from decisive evidence.
-- Record attempts in `learner-state/weeks/week-01/EVIDENCE.md`.
+- Record attempts in `weeks/week-01/EVIDENCE.md` under your configured learner directory.
 
 Until the lab and grader links appear here, this week cannot be marked `PASS`.

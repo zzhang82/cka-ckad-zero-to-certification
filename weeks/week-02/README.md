@@ -19,6 +19,6 @@
 - Explain the first evidence source for API, scheduler, kubelet, and workload failures.
 - Prove least-privilege access from the intended identity.
 - Repair an unschedulable Pod without removing the requirement.
-- Record attempts in `learner-state/weeks/week-02/EVIDENCE.md`.
+- Record attempts in `weeks/week-02/EVIDENCE.md` under your configured learner directory.
 
 Until the lab and grader links appear here, this week cannot be marked `PASS`.
