@@ -33,4 +33,4 @@ bash _project/scripts/quality/test_study_cli.sh
 
 Run every changed lab or diagnostic through seed, grade, reset, and teardown on the supported environment. A new week is not runnable merely because its Markdown exists.
 
-The repository does not yet include a redistribution license. Please open an issue before contributing a substantial reusable artifact so ownership and licensing can be resolved explicitly.
+Contributions are accepted under the repository's [MIT License](LICENSE). Third-party materials still require compatible licensing and attribution under the [source and license policy](_project/policies/SOURCE_POLICY.md).

@@ -1,6 +1,7 @@
 # CKA + CKAD: 12-Week Hands-On Program
 
 [![repository-quality](https://github.com/zzhang82/cka-ckad-zero-to-certification/actions/workflows/quality.yml/badge.svg)](https://github.com/zzhang82/cka-ckad-zero-to-certification/actions/workflows/quality.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Prepare for **CKA first, then CKAD**, with Linux Foundation course mapping, repeatable WSL labs, broken-state drills, and timed readiness gates.
 
@@ -13,6 +14,28 @@ Prepare for **CKA first, then CKAD**, with Linux Foundation course mapping, repe
 | You use Kubernetes regularly and want to test out of familiar material | [Take the Week 0 placement route](docs/en/getting-started/CHOOSE_YOUR_PATH.md#current-kubernetes-operator) |
 
 The current runnable milestone is **Week 0**. Later-week goals and reading lists are published, but their labs and graders are still being built.
+
+## Project status
+
+A week is marked **Runnable** only when its learner guide, original labs, reset path, and grader have been implemented and validated.
+
+| Week | Learner target | Track | Labs and graders | Status |
+|---:|---|---|---|---|
+| [0](weeks/week-00/README.md) | Prove the environment and establish placement | Shared | Ready | **Runnable** |
+| [1](weeks/week-01/README.md) | API objects, YAML, namespaces, and command fluency | CKA | In development | Preview |
+| [2](weeks/week-02/README.md) | Architecture, access, resources, and scheduling | CKA | In development | Preview |
+| [3](weeks/week-03/README.md) | Cluster installation, lifecycle, upgrades, and extensions | CKA | In development | Preview |
+| [4](weeks/week-04/README.md) | Networking and storage | CKA | In development | Preview |
+| [5](weeks/week-05/README.md) | Application, node, and control-plane troubleshooting | CKA | In development | Preview |
+| [6](weeks/week-06/README.md) | CKA timed mocks and readiness decision | CKA | In development | Preview |
+| [7](weeks/week-07/README.md) | Application design, images, workloads, and volumes | CKAD | In development | Preview |
+| [8](weeks/week-08/README.md) | Deployment, configuration, and application security | CKAD | In development | Preview |
+| [9](weeks/week-09/README.md) | Observability, networking, and application debugging | CKAD | In development | Preview |
+| [10](weeks/week-10/README.md) | CKAD timed mocks and readiness decision | CKAD | In development | Preview |
+| [11](weeks/week-11/README.md) | Repair the weakest measured domain | Remediation | In development | Preview |
+| [12](weeks/week-12/README.md) | Use the retake buffer or hand off to CKS | Contingency | In development | Preview |
+
+See the detailed [12-week program map](weeks/README.md).
 
 ## Create your private study workspace
 
@@ -69,5 +92,9 @@ Learners should not need to browse `_project/`; use the stable `bash ./study ...
 - [Browse all weekly resources](resources/README.md)
 - [Contribute a lab, correction, or resource](CONTRIBUTING.md)
 - [View the public 12-week project](https://github.com/users/zzhang82/projects/1)
+
+## License
+
+This project is licensed under the [MIT License](LICENSE). Third-party materials retain their own licenses and attribution requirements.
 
 This independent project is not endorsed by CNCF, the Linux Foundation, or PSI. Exam dumps, recalled questions, and copied proprietary training content are not accepted.
