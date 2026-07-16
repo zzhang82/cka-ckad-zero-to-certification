@@ -58,7 +58,7 @@ bash ./study open week-00 --code
 bash ./study shell
 ```
 
-The optional VS Code workspace opens the public repository and the ignored private week directory together. The study shell loads your Bash preferences first and then overrides `KUBECONFIG` with `.state/kubeconfig`; use that prompt for every learner `kubectl` command. Exit it to return to your normal shell.
+The optional VS Code workspace opens the public repository and your configured private week directory together. The study shell loads your Bash preferences first and then overrides `KUBECONFIG` with `.state/kubeconfig`; use that prompt for every learner `kubectl` command. Exit it to return to your normal shell.
 
 ## Safety rules
 
@@ -67,6 +67,6 @@ The optional VS Code workspace opens the public repository and the ignored priva
 - Never copy a work kubeconfig into `.state/`.
 - Run `down` only for the named project profile.
 - Treat grader success as final-state evidence, not as the explanation.
-- Keep credentials, portal dates, personal scores, and unseen mock state under ignored `learner-state/` only.
+- Never store credentials, tokens, private keys, or kubeconfig in learner files. Keep portal dates, personal scores, and unseen mock state in the configured private learner directory only.
 
 If a doctor fails, stop at that check. Do not add another cluster engine or bypass the isolation guard as a shortcut.

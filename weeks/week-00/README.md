@@ -21,7 +21,7 @@ bash ./study init --profile rusty
 bash ./study open week-00
 ```
 
-Use `beginner` or `operator` if [another starting path](../../docs/en/getting-started/CHOOSE_YOUR_PATH.md) fits better. Record voucher/course access dates and study blocks in `learner-state/profile.yaml`; never commit them.
+Use `beginner` or `operator` if [another starting path](../../docs/en/getting-started/CHOOSE_YOUR_PATH.md) fits better. Record voucher/course access dates and study blocks in `profile.yaml` under the learner directory printed by `bash ./study status`. Keep that repository private if you use an external workspace.
 
 ## 2. Check Windows and WSL
 
@@ -64,7 +64,7 @@ bash ./study lab reset week0-smoke
 bash ./study env down week0-single
 ```
 
-The second run must start from an absent cluster. Record timing, failures, recovery, Docker context, and final output in `learner-state/weeks/week-00/EVIDENCE.md`.
+The second run must start from an absent cluster. Record timing, failures, recovery, Docker context, assistance level, and final output in `weeks/week-00/EVIDENCE.md` under your configured learner directory.
 
 ## 5. Take the placement diagnostic
 
@@ -91,7 +91,7 @@ Schedule one repeat task for every Yellow or Red area. A high total never cancel
 
 - [ ] Windows and WSL doctors report no failure.
 - [ ] The ready doctor confirms every pinned tool.
-- [ ] `learner-state/` and `.state/` are Git-ignored.
+- [ ] The configured learner directory is safe, and this repository's `.state/` is Git-ignored.
 - [ ] The cluster and smoke proof succeed twice from a clean start.
 - [ ] No unrelated kubeconfig, context, cluster, or namespace changes.
 - [ ] The timed diagnostic and manual scorecard are complete.

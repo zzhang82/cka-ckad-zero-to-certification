@@ -251,7 +251,7 @@ def main() -> int:
     print(f"\nAUTOMATED_SCORE={score}/80")
     print("MANUAL_SCORE_REQUIRED=areas-03-and-10/20")
     print(
-        "Complete learner-state/weeks/week-00/placement/SCORECARD.md; "
+        "Complete the placement/SCORECARD.md in your configured learner workspace; "
         "this diagnostic does not auto-declare readiness."
     )
     return 0

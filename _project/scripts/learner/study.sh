@@ -1,11 +1,45 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd -- "$SCRIPT_DIR/../../.." && pwd)"
-PRIVATE_DIR="$ROOT_DIR/learner-state"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+ROOT_DIR="$(cd -- "$SCRIPT_DIR/../../.." && pwd -P)"
 STATE_DIR="$ROOT_DIR/.state"
 TEMPLATE_DIR="$ROOT_DIR/_project/templates/private-week"
+
+path_is_within() {
+  local path="$1" parent="$2"
+  if [[ "$parent" == '/' ]]; then
+    [[ "$path" == /* ]]
+    return
+  fi
+  case "$path" in
+    "$parent"|"$parent"/*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+resolve_learner_dir() {
+  local configured="${CKA_CKAD_LEARNER_DIR:-$ROOT_DIR/learner-state}"
+  if [[ "$configured" != /* ]]; then
+    configured="$ROOT_DIR/$configured"
+  fi
+  realpath -m -- "$configured"
+}
+
+json_escape() {
+  local value="$1"
+  value="${value//\\/\\\\}"
+  value="${value//\"/\\\"}"
+  value="${value//$'\n'/\\n}"
+  value="${value//$'\r'/\\r}"
+  value="${value//$'\t'/\\t}"
+  printf '%s' "$value"
+}
+
+command -v realpath >/dev/null 2>&1 || { echo 'realpath is required.' >&2; exit 1; }
+PRIVATE_DIR="$(resolve_learner_dir)"
+export CKA_CKAD_LEARNER_DIR="$PRIVATE_DIR"
+export CKA_CKAD_PLACEMENT_EVIDENCE_DIR="$PRIVATE_DIR/weeks/week-00/placement"
 
 usage() {
   cat <<'EOF'
@@ -30,23 +64,68 @@ require_wsl() {
   }
 }
 
-assert_private_paths_ignored() {
+assert_private_paths_safe() {
   command -v git >/dev/null 2>&1 || { echo 'git is required.' >&2; exit 1; }
-  local tracked_private
-  tracked_private="$(git -C "$ROOT_DIR" ls-files -- learner-state .state)"
-  [[ -z "$tracked_private" ]] || {
-    echo 'REFUSE: a private learner or runtime path is already tracked by Git:' >&2
-    printf '%s\n' "$tracked_private" >&2
+  [[ ! -e "$PRIVATE_DIR" || -d "$PRIVATE_DIR" ]] || {
+    echo "REFUSE: learner workspace is not a directory: $PRIVATE_DIR" >&2
     exit 1
   }
-  git -C "$ROOT_DIR" check-ignore -q learner-state/.ignore-check || {
-    echo 'REFUSE: learner-state/ is not ignored by Git.' >&2
+
+  [[ "$PRIVATE_DIR" != "$ROOT_DIR" ]] || {
+    echo 'REFUSE: the public repository root cannot be the learner workspace.' >&2
+    exit 1
+  }
+
+  if path_is_within "$ROOT_DIR" "$PRIVATE_DIR"; then
+    echo 'REFUSE: the learner workspace cannot contain the public repository.' >&2
+    exit 1
+  fi
+
+  local git_dir git_common_dir
+  git_dir="$(realpath -m -- "$(git -C "$ROOT_DIR" rev-parse --absolute-git-dir)")"
+  git_common_dir="$(git -C "$ROOT_DIR" rev-parse --git-common-dir)"
+  if [[ "$git_common_dir" != /* ]]; then
+    git_common_dir="$ROOT_DIR/$git_common_dir"
+  fi
+  git_common_dir="$(realpath -m -- "$git_common_dir")"
+  for metadata_dir in "$git_dir" "$git_common_dir"; do
+    if path_is_within "$PRIVATE_DIR" "$metadata_dir"; then
+      echo 'REFUSE: the learner workspace cannot be inside the public repository Git metadata.' >&2
+      exit 1
+    fi
+  done
+
+  if path_is_within "$PRIVATE_DIR" "$STATE_DIR"; then
+    echo 'REFUSE: learner files and public runtime state must use separate directories.' >&2
+    exit 1
+  fi
+
+  local tracked_state
+  tracked_state="$(git -C "$ROOT_DIR" ls-files -- .state)"
+  [[ -z "$tracked_state" ]] || {
+    echo 'REFUSE: the public runtime path is already tracked by Git:' >&2
+    printf '%s\n' "$tracked_state" >&2
     exit 1
   }
   git -C "$ROOT_DIR" check-ignore -q .state/.ignore-check || {
     echo 'REFUSE: .state/ is not ignored by Git.' >&2
     exit 1
   }
+
+  if path_is_within "$PRIVATE_DIR" "$ROOT_DIR"; then
+    local private_relative tracked_private
+    private_relative="${PRIVATE_DIR#"$ROOT_DIR"/}"
+    tracked_private="$(git -C "$ROOT_DIR" ls-files -- "$private_relative")"
+    [[ -z "$tracked_private" ]] || {
+      echo 'REFUSE: the internal learner workspace is already tracked by Git:' >&2
+      printf '%s\n' "$tracked_private" >&2
+      exit 1
+    }
+    git -C "$ROOT_DIR" check-ignore -q -- "$private_relative/.ignore-check" || {
+      echo "REFUSE: internal learner workspace is not ignored by Git: $private_relative/" >&2
+      exit 1
+    }
+  fi
 }
 
 normalize_week() {
@@ -77,11 +156,14 @@ create_week_workspace() {
 
 write_code_workspace() {
   local week="$1"
+  local root_json week_json
+  root_json="$(json_escape "$ROOT_DIR")"
+  week_json="$(json_escape "$PRIVATE_DIR/weeks/$week")"
   cat >"$PRIVATE_DIR/cka-ckad-study.code-workspace" <<EOF
 {
   "folders": [
-    {"name": "Study guide (read-only mindset)", "path": ".."},
-    {"name": "My $week work", "path": "weeks/$week"}
+    {"name": "Study guide (read-only mindset)", "path": "$root_json"},
+    {"name": "My $week work", "path": "$week_json"}
   ],
   "settings": {
     "files.exclude": {"**/.git": true},
@@ -98,7 +180,7 @@ init_profile() {
   case "$profile" in beginner|rusty|operator) ;; *) usage ;; esac
 
   require_wsl
-  assert_private_paths_ignored
+  assert_private_paths_safe
   mkdir -p "$PRIVATE_DIR" "$STATE_DIR"
   if [[ ! -f "$PRIVATE_DIR/profile.yaml" ]]; then
     cat >"$PRIVATE_DIR/profile.yaml" <<EOF
@@ -120,7 +202,12 @@ EOF
   echo 'Private study workspace initialized.'
   echo "Profile: $PRIVATE_DIR/profile.yaml"
   echo "Start:   bash ./study open week-00"
-  echo "Git:     learner-state/ and .state/ are ignored"
+  if path_is_within "$PRIVATE_DIR" "$ROOT_DIR"; then
+    echo "Learner: ignored and untracked inside the public repository"
+  else
+    echo "Learner: external workspace at $PRIVATE_DIR"
+  fi
+  echo "Runtime: $STATE_DIR is ignored and untracked"
 }
 
 open_week() {
@@ -133,7 +220,7 @@ open_week() {
     echo 'Initialize your private workspace first: bash ./study init --profile rusty' >&2
     exit 1
   }
-  assert_private_paths_ignored
+  assert_private_paths_safe
   [[ -f "$ROOT_DIR/weeks/$week/README.md" ]] || {
     echo "The public guide for $week is not published yet." >&2
     exit 1
@@ -144,12 +231,12 @@ open_week() {
 
   cat <<EOF
 Week:          $week
-Guide:         weeks/$week/README.md
-Resources:     weeks/$week/RESOURCES.md
-Private plan:  learner-state/weeks/$week/PLAN.md
-Private notes: learner-state/weeks/$week/NOTES.md
-Evidence:      learner-state/weeks/$week/EVIDENCE.md
-Lab state:     .state/
+Guide:         $ROOT_DIR/weeks/$week/README.md
+Resources:     $ROOT_DIR/weeks/$week/RESOURCES.md
+Private plan:  $PRIVATE_DIR/weeks/$week/PLAN.md
+Private notes: $PRIVATE_DIR/weeks/$week/NOTES.md
+Evidence:      $PRIVATE_DIR/weeks/$week/EVIDENCE.md
+Lab state:     $STATE_DIR/
 
 Next: open the guide, then use 'bash ./study shell' for an isolated terminal.
 EOF
@@ -165,6 +252,7 @@ EOF
 
 show_status() {
   echo "Repository: $ROOT_DIR"
+  echo "Learner directory: $PRIVATE_DIR"
   if [[ -f "$PRIVATE_DIR/profile.yaml" ]]; then
     sed -n '1,3p' "$PRIVATE_DIR/profile.yaml"
   else
@@ -175,18 +263,25 @@ show_status() {
   else
     echo 'current_week: not selected'
   fi
-  assert_private_paths_ignored
-  echo 'private_paths: ignored'
+  assert_private_paths_safe
+  if path_is_within "$PRIVATE_DIR" "$ROOT_DIR"; then
+    echo 'learner_storage: ignored-in-public-repository'
+  else
+    echo 'learner_storage: external'
+  fi
+  echo 'runtime_storage: ignored-in-public-repository'
 }
 
 open_shell() {
   [[ $# -eq 0 ]] || usage
   require_wsl
-  assert_private_paths_ignored
+  assert_private_paths_safe
   mkdir -p "$STATE_DIR"
   local rc_file="$STATE_DIR/study-shell.rc"
   {
     printf 'source ~/.bashrc 2>/dev/null || true\n'
+    printf 'export CKA_CKAD_LEARNER_DIR=%q\n' "$PRIVATE_DIR"
+    printf 'export CKA_CKAD_PLACEMENT_EVIDENCE_DIR=%q\n' "$CKA_CKAD_PLACEMENT_EVIDENCE_DIR"
     printf 'export CKA_CKAD_STATE_DIR=%q\n' "$STATE_DIR"
     printf 'export KUBECONFIG=%q\n' "$STATE_DIR/kubeconfig"
     printf 'alias k=kubectl\n'

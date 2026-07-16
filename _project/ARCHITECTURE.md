@@ -43,7 +43,7 @@ Conventional root files such as `.github/`, `.gitignore`, `AGENTS.md`, and `CONT
 ## 3. Local-private surface
 
 ```text
-learner-state/
+learner-state/ or $CKA_CKAD_LEARNER_DIR
 ├── profile.yaml
 ├── current-week
 └── weeks/week-XX/
@@ -57,7 +57,9 @@ learner-state/
 └── runtime files
 ```
 
-Both paths are Git-ignored. `learner-state/` belongs to the human; `.state/` belongs to runtime tooling. Initialization refuses to proceed if either path is trackable.
+The learner directory belongs to the human. It defaults to ignored `learner-state/`, or may point to an external private workspace through `CKA_CKAD_LEARNER_DIR`. An internal learner directory must remain ignored and untracked by this repository. An external learner directory may be tracked by its own private repository.
+
+`.state/` belongs to runtime tooling and always remains ignored under this public repository. Initialization refuses unsafe overlap between learner files, public source, Git metadata, and runtime state.
 
 ## Weekly lifecycle
 
@@ -92,7 +94,7 @@ The repository kubeconfig is `.state/kubeconfig`. Cluster names begin with `cka-
 | How do I invoke the system? | root `study` command |
 | How is the action implemented? | `_project/scripts/`, `_project/labs/`, `_project/diagnostics/` |
 | Which external source may be adopted? | `_project/data/resources/catalog.json` plus source policy |
-| What proves my work? | ignored `learner-state/` |
+| What proves my work? | the configured private learner directory |
 | What proves repository behavior? | dated `_project/evidence/` plus live validation |
 
 ## Deliberate deferrals

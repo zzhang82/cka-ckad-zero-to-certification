@@ -9,7 +9,7 @@ This file is a thin project override. Global Cole instructions remain authoritat
 - Paid LFS258/LFS259 content is link/map only. Do not copy proprietary text, media, or labs.
 - Reject exam dumps, reconstructed live questions, and confidential exam content.
 - Every external asset needs source, version/commit, license, adoption status, and local validation evidence.
-- Generated files belong in `dist/`; learner scores, notes, and unseen forms belong in ignored `learner-state/`; runtime state belongs in ignored `.state/`.
+- Generated files belong in `dist/`; learner scores, notes, and unseen forms belong in the configured private learner directory, which defaults to ignored `learner-state/`; runtime state always belongs in ignored `.state/`.
 - Destructive environment scripts must scope operations to project-owned names and kubeconfigs.
 
 Validation commands:
