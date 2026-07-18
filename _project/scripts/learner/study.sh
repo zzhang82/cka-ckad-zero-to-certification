@@ -42,19 +42,23 @@ export CKA_CKAD_LEARNER_DIR="$PRIVATE_DIR"
 export CKA_CKAD_PLACEMENT_EVIDENCE_DIR="$PRIVATE_DIR/weeks/week-00/placement"
 
 usage() {
+  local exit_code="${1:-2}"
   cat <<'EOF'
 Usage:
   bash ./study init --profile {beginner|rusty|operator}
-  bash ./study open week-00 [--code]
+  bash ./study open {week-00..week-12} [--code]
   bash ./study status
   bash ./study shell
   bash ./study doctor {windows|wsl} [--preflight|--ready]
   bash ./study tools bootstrap
   bash ./study env {up|status|reset|down|evidence} {week0-single|shared-multinode}
   bash ./study lab {seed|grade|reset} week0-smoke
+  bash ./study lab {seed|grade|reset} week1-objects
+  bash ./study lab {seed|grade|reset} week1-debug
   bash ./study diagnostic {seed|grade|reset} week0-placement
+  bash ./study diagnostic {seed|grade|reset} week1-sprint
 EOF
-  exit 2
+  exit "$exit_code"
 }
 
 require_wsl() {
@@ -251,6 +255,7 @@ EOF
 }
 
 show_status() {
+  assert_private_paths_safe
   echo "Repository: $ROOT_DIR"
   echo "Learner directory: $PRIVATE_DIR"
   if [[ -f "$PRIVATE_DIR/profile.yaml" ]]; then
@@ -263,7 +268,6 @@ show_status() {
   else
     echo 'current_week: not selected'
   fi
-  assert_private_paths_safe
   if path_is_within "$PRIVATE_DIR" "$ROOT_DIR"; then
     echo 'learner_storage: ignored-in-public-repository'
   else
@@ -327,22 +331,40 @@ run_doctor() {
 run_lab() {
   [[ $# -eq 2 ]] || usage
   local action="${1:-}" target="${2:-}"
-  [[ "$target" == 'week0-smoke' ]] || usage
   case "$action" in seed|grade|reset) ;; *) usage ;; esac
-  bash "$ROOT_DIR/_project/labs/shared/week0-smoke/$action.sh"
+  case "$target" in
+    week0-smoke)
+      bash "$ROOT_DIR/_project/labs/shared/week0-smoke/$action.sh"
+      ;;
+    week1-objects)
+      bash "$ROOT_DIR/_project/labs/cka/week1/objects/$action.sh"
+      ;;
+    week1-debug)
+      bash "$ROOT_DIR/_project/labs/cka/week1/debug/$action.sh"
+      ;;
+    *) usage ;;
+  esac
 }
 
 run_diagnostic() {
   [[ $# -eq 2 ]] || usage
   local action="${1:-}" target="${2:-}"
-  [[ "$target" == 'week0-placement' ]] || usage
   case "$action" in seed|grade|reset) ;; *) usage ;; esac
-  bash "$ROOT_DIR/_project/diagnostics/week0-placement/$action.sh"
+  case "$target" in
+    week0-placement)
+      bash "$ROOT_DIR/_project/diagnostics/week0-placement/$action.sh"
+      ;;
+    week1-sprint)
+      bash "$ROOT_DIR/_project/labs/cka/week1/sprint/$action.sh"
+      ;;
+    *) usage ;;
+  esac
 }
 
 command="${1:-}"
 shift || true
 case "$command" in
+  help|-h|--help) [[ $# -eq 0 ]] || usage; usage 0 ;;
   init) init_profile "$@" ;;
   open) open_week "$@" ;;
   status) [[ $# -eq 0 ]] || usage; show_status ;;

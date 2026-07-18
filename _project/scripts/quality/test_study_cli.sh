@@ -10,19 +10,35 @@ fake_root="$tmp/repo"
 mkdir -p \
   "$fake_root/_project/scripts/learner" \
   "$fake_root/_project/diagnostics/week0-placement" \
+  "$fake_root/_project/labs/shared/week0-smoke" \
+  "$fake_root/_project/labs/cka/week1/objects" \
+  "$fake_root/_project/labs/cka/week1/debug" \
+  "$fake_root/_project/labs/cka/week1/sprint" \
   "$fake_root/_project/templates/private-week" \
-  "$fake_root/weeks/week-00"
+  "$fake_root/weeks/week-00" \
+  "$fake_root/weeks/week-01"
 cp "$ROOT_DIR/study" "$fake_root/study"
 cp "$ROOT_DIR/_project/scripts/learner/study.sh" "$fake_root/_project/scripts/learner/study.sh"
 cp "$ROOT_DIR/_project/templates/private-week/"*.md "$fake_root/_project/templates/private-week/"
 cp "$ROOT_DIR/.gitignore" "$fake_root/.gitignore"
 printf '# fixture\n' >"$fake_root/weeks/week-00/README.md"
 printf '# fixture\n' >"$fake_root/weeks/week-00/RESOURCES.md"
+printf '# fixture\n' >"$fake_root/weeks/week-01/README.md"
+printf '# fixture\n' >"$fake_root/weeks/week-01/RESOURCES.md"
 for action in seed grade reset; do
   cat >"$fake_root/_project/diagnostics/week0-placement/$action.sh" <<'EOF'
 #!/usr/bin/env bash
 printf '%s\n' "$CKA_CKAD_PLACEMENT_EVIDENCE_DIR"
 EOF
+done
+
+for target in shared/week0-smoke cka/week1/objects cka/week1/debug cka/week1/sprint; do
+  for action in seed grade reset; do
+    cat >"$fake_root/_project/labs/$target/$action.sh" <<EOF
+#!/usr/bin/env bash
+printf '%s\n' '_project/labs/$target/$action.sh'
+EOF
+  done
 done
 
 git -C "$fake_root" init -q
@@ -31,12 +47,40 @@ git -C "$fake_root" config user.email 'study-cli@example.invalid'
 git -C "$fake_root" add .
 git -C "$fake_root" commit -qm 'fixture'
 
+for help_command in help -h --help; do
+  help_output="$(bash "$fake_root/study" "$help_command")"
+  for expected_target in \
+    'bash ./study init --profile {beginner|rusty|operator}' \
+    'bash ./study open {week-00..week-12} [--code]' \
+    'bash ./study status' \
+    'bash ./study shell' \
+    'bash ./study doctor {windows|wsl} [--preflight|--ready]' \
+    'bash ./study tools bootstrap' \
+    'bash ./study env {up|status|reset|down|evidence} {week0-single|shared-multinode}' \
+    'bash ./study lab {seed|grade|reset} week0-smoke' \
+    'bash ./study lab {seed|grade|reset} week1-objects' \
+    'bash ./study lab {seed|grade|reset} week1-debug' \
+    'bash ./study diagnostic {seed|grade|reset} week0-placement' \
+    'bash ./study diagnostic {seed|grade|reset} week1-sprint'; do
+    grep -Fq "$expected_target" <<<"$help_output"
+  done
+done
+
 bash "$fake_root/study" init --profile rusty >/dev/null
 test -f "$fake_root/learner-state/weeks/week-00/PLAN.md"
 test -z "$(git -C "$fake_root" status --porcelain)"
 
-if bash "$fake_root/study" status unexpected >/dev/null 2>&1; then
-  echo 'FAIL  study status accepted a surplus argument' >&2
+week_one_output="$(bash "$fake_root/study" open week-01)"
+grep -Fq 'Week:          week-01' <<<"$week_one_output"
+test -f "$fake_root/learner-state/weeks/week-01/PLAN.md"
+test "$(<"$fake_root/learner-state/current-week")" = 'week-01'
+
+set +e
+bash "$fake_root/study" status unexpected >/dev/null 2>&1
+usage_exit_code=$?
+set -e
+if [[ "$usage_exit_code" -ne 2 ]]; then
+  echo "FAIL  study usage error exited $usage_exit_code instead of 2" >&2
   exit 1
 fi
 
@@ -80,6 +124,17 @@ diagnostic_output="$(
 )"
 test "$diagnostic_output" = "$external_dir/weeks/week-00/placement"
 
+for action in seed grade reset; do
+  test "$(bash "$fake_root/study" lab "$action" week0-smoke)" = \
+    "_project/labs/shared/week0-smoke/$action.sh"
+  test "$(bash "$fake_root/study" lab "$action" week1-objects)" = \
+    "_project/labs/cka/week1/objects/$action.sh"
+  test "$(bash "$fake_root/study" lab "$action" week1-debug)" = \
+    "_project/labs/cka/week1/debug/$action.sh"
+  test "$(bash "$fake_root/study" diagnostic "$action" week1-sprint)" = \
+    "_project/labs/cka/week1/sprint/$action.sh"
+done
+
 git -C "$external_repo" add journal
 CKA_CKAD_LEARNER_DIR="$external_relative" bash "$fake_root/study" status >/dev/null
 
@@ -92,8 +147,21 @@ paths = [folder["path"] for folder in workspace["folders"]]
 assert paths == [sys.argv[2], sys.argv[3]], paths
 PY
 
-if CKA_CKAD_LEARNER_DIR='unsafe-internal' bash "$fake_root/study" status >/dev/null 2>&1; then
+mkdir -p "$fake_root/unsafe-internal"
+printf 'profile: PRIVATE_STATUS_MARKER\n' >"$fake_root/unsafe-internal/profile.yaml"
+printf 'PRIVATE_STATUS_MARKER\n' >"$fake_root/unsafe-internal/current-week"
+set +e
+unsafe_status_output="$(
+  CKA_CKAD_LEARNER_DIR='unsafe-internal' bash "$fake_root/study" status 2>&1
+)"
+unsafe_status_exit_code=$?
+set -e
+if [[ "$unsafe_status_exit_code" -eq 0 ]]; then
   echo 'FAIL  study accepted an unignored internal learner workspace' >&2
+  exit 1
+fi
+if grep -Fq PRIVATE_STATUS_MARKER <<<"$unsafe_status_output"; then
+  echo 'FAIL  study leaked private status content before rejecting an unsafe workspace' >&2
   exit 1
 fi
 

@@ -99,4 +99,4 @@ Schedule one repeat task for every Yellow or Red area. A high total never cancel
 
 Verdict: `PASS` / `CONDITIONAL` / `REPEAT`
 
-Next: [Week 1 preview](../week-01/README.md). Week 1 labs and grader must be published before its gate can be claimed.
+Next: [Week 1 — API objects and command fluency](../week-01/README.md).
