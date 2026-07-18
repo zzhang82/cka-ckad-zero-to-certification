@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sprint-probe
+  namespace: week1-sprint
+  labels:
+    task: sprint-probe
+spec:
+  containers:
+    - name: probe
+      image: registry.k8s.io/e2e-test-images/agnhost:2.53@sha256:99c6b4bb4a1e1df3f0b3752168c89358794d02258ebebc26bf21c29399011a85
+      args: [pause]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sprint-web
+  namespace: week1-sprint
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sprint-web
+  template:
+    metadata:
+      labels:
+        app: sprint-web
+    spec:
+      containers:
+        - name: web
+          image: registry.k8s.io/e2e-test-images/agnhost:2.53@sha256:99c6b4bb4a1e1df3f0b3752168c89358794d02258ebebc26bf21c29399011a85
+          args: [netexec, --http-port=8080]
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sprint-web
+  namespace: week1-sprint
+spec:
+  selector:
+    app: sprint-web
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

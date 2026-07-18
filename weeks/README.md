@@ -1,11 +1,11 @@
 # 12-Week Program Map
 
-The route is **CKA first, then CKAD**. Week 0 is runnable now. Weeks 1–12 publish their direction and curated resources early, but a week cannot be marked complete until its original labs, broken-state scenarios, grader, and reset path are implemented and validated.
+The route is **CKA first, then CKAD**. Weeks 0 and 1 are runnable now. Weeks 2–12 publish their direction and curated resources early, but a week cannot be marked complete until its original labs, broken-state scenarios, grader, and reset path are implemented and validated.
 
 | Week | Learner target | Track | Status |
 |---:|---|---|---|
 | [0](week-00/README.md) | Prove the environment and establish placement | Shared | Runnable |
-| [1](week-01/README.md) | API objects, YAML, namespaces, and command fluency | CKA | Preview |
+| [1](week-01/README.md) | API objects, YAML, namespaces, and command fluency | CKA | Runnable |
 | [2](week-02/README.md) | Architecture, access, resources, and scheduling | CKA | Preview |
 | [3](week-03/README.md) | Cluster installation, lifecycle, upgrades, and extensions | CKA | Preview |
 | [4](week-04/README.md) | Networking and storage | CKA | Preview |

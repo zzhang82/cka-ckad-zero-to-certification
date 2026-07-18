@@ -1,0 +1,33 @@
+{
+  "$schema": "../../schemas/week.schema.json",
+  "id": "week-01",
+  "title": "API Objects and Command Fluency",
+  "track": "cka",
+  "status": "active",
+  "planned_hours": 12,
+  "target": "Create, inspect, explain, debug, and independently verify core Kubernetes objects through three isolated graded labs.",
+  "resource_ids": [
+    "cncf-curriculum",
+    "lfs258",
+    "k8s-kubectl-quick-reference",
+    "kind-quick-start",
+    "k8s-components",
+    "k8s-objects",
+    "k8s-debug-applications"
+  ],
+  "deliverables": [
+    "Retrieval corrections for the object and controller model",
+    "Guided Deployment and Service evidence",
+    "Broken image and selector diagnosis",
+    "Independent timed Pod, Deployment, and Service sprint",
+    "Week 1 evidence and PASS, CONDITIONAL, or REPEAT verdict"
+  ],
+  "acceptance": [
+    "The guided object, debugging, and timed sprint graders pass from fresh seeds",
+    "Every workload uses the required pinned image and exact namespace",
+    "Deployments are fully rolled out and Services have ready EndpointSlices and HTTP",
+    "Each reset deletes only its declared Week 1 namespace",
+    "The timed sprint passes within 30 minutes without hidden help",
+    "Every assisted, slow, or failed result has a scheduled repeat"
+  ]
+}

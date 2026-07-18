@@ -19,10 +19,14 @@ jobs:
         run: python _project/scripts/quality/validate_repo.py
       - name: Validate repository-local Markdown links
         run: python _project/scripts/quality/check_links.py
+      - name: Test Git-aware Markdown link discovery
+        run: python _project/scripts/quality/test_check_links.py
       - name: Check Bash syntax
-        run: bash -n study _project/scripts/environment/*.sh _project/scripts/learner/*.sh _project/scripts/quality/*.sh _project/labs/shared/week0-smoke/*.sh _project/diagnostics/week0-placement/*.sh
-      - name: Test placement-grader contracts
-        run: python _project/diagnostics/week0-placement/test_grader.py
+        run: bash -n study _project/scripts/environment/*.sh _project/scripts/learner/*.sh _project/scripts/quality/*.sh _project/labs/shared/week0-smoke/*.sh _project/labs/cka/week1/*/*.sh _project/diagnostics/week0-placement/*.sh
+      - name: Test grader contracts
+        run: |
+          python _project/diagnostics/week0-placement/test_grader.py
+          python _project/labs/cka/week1/test_grader.py
       - name: Test target-safety guards
         run: |
           bash _project/scripts/quality/test_target_guards.sh

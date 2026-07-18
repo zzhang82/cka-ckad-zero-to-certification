@@ -18,7 +18,8 @@ See [Architecture](ARCHITECTURE.md) for boundaries and lifecycle details.
 ## Current implementation truth
 
 - Week 0 has a tested environment profile, smoke proof, placement diagnostic, grader, and reset.
-- Weeks 1–12 expose learner targets and curated resources, but their lab/scenario gates remain previews.
+- Week 1 has guided object work, a broken-state drill, a timed diagnostic, deterministic graders, and namespace-scoped resets.
+- Weeks 2–12 expose learner targets and curated resources, but their lab/scenario gates remain previews.
 - English is canonical for now; Chinese translation and a static site wait until the weekly contract stabilizes.
 
 ## Quality commands
@@ -26,10 +27,12 @@ See [Architecture](ARCHITECTURE.md) for boundaries and lifecycle details.
 ```bash
 python3 _project/scripts/quality/validate_repo.py
 python3 _project/scripts/quality/check_links.py
+python3 _project/scripts/quality/test_check_links.py
 bash -n study _project/scripts/environment/*.sh _project/scripts/learner/*.sh _project/scripts/quality/*.sh
-bash -n _project/labs/shared/week0-smoke/*.sh _project/diagnostics/week0-placement/*.sh
+bash -n _project/labs/shared/week0-smoke/*.sh _project/labs/cka/week1/*/*.sh _project/diagnostics/week0-placement/*.sh
 bash _project/scripts/quality/test_target_guards.sh
 python3 _project/diagnostics/week0-placement/test_grader.py
+python3 _project/labs/cka/week1/test_grader.py
 bash _project/scripts/quality/test_study_cli.sh
 ```
 
@@ -37,6 +40,12 @@ The live Week 0 proof runs the WSL ready doctor, two clean cluster lifecycles, s
 
 ```bash
 bash _project/diagnostics/week0-placement/test_live.sh
+```
+
+The Week 1 proof exercises blank, passing, and post-reset states for all three workflows on a disposable kind cluster, then verifies final teardown:
+
+```bash
+bash _project/labs/cka/week1/test_live.sh
 ```
 
 ## Content gates

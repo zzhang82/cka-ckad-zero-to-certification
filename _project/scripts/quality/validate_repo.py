@@ -17,6 +17,7 @@ VALID_AUTHORITY = {"official", "purchased", "community"}
 VALID_ADOPTION = {"primary", "map-only", "supplemental", "link-only", "reject"}
 VALID_TRACK = {"shared", "cka", "ckad", "remediation"}
 VALID_STATUS = {"planned", "active", "passed", "conditional", "repeat"}
+RUNNABLE_STATUS = {"active", "passed", "conditional", "repeat"}
 
 
 def load_json(path: Path) -> dict:
@@ -82,23 +83,11 @@ def main() -> int:
         except (TypeError, ValueError):
             errors.append(f"{label}: last_verified must be YYYY-MM-DD")
 
-    for week_id in sorted(VALID_WEEKS):
-        public_week = ROOT / "weeks" / week_id
-        for required_file in ("README.md", "RESOURCES.md"):
-            if not (public_week / required_file).is_file():
-                errors.append(f"{public_week.relative_to(ROOT)}: missing {required_file}")
-        readme_path = public_week / "README.md"
-        if readme_path.is_file():
-            readme = readme_path.read_text(encoding="utf-8")
-            if week_id == "week-00" and "> Preview:" in readme:
-                errors.append("weeks/week-00/README.md: runnable week must not be labeled Preview")
-            if week_id != "week-00" and "> Preview:" not in readme:
-                errors.append(f"weeks/{week_id}/README.md: planned week must carry the Preview banner")
-
     week_files = sorted((ROOT / "_project" / "data" / "weeks").glob("week-*.json"))
     if not week_files:
         errors.append("_project/data/weeks/: no week metadata files found")
 
+    week_contracts: dict[str, dict] = {}
     for week_path in week_files:
         rel = week_path.relative_to(ROOT)
         try:
@@ -106,6 +95,8 @@ def main() -> int:
         except ValueError as exc:
             errors.append(str(exc))
             continue
+        if week_path.stem in VALID_WEEKS:
+            week_contracts[week_path.stem] = week
         required = {"id", "title", "track", "status", "planned_hours", "target", "resource_ids", "deliverables", "acceptance"}
         missing = required - week.keys()
         if missing:
@@ -125,6 +116,26 @@ def main() -> int:
         unknown = sorted(set(week["resource_ids"]) - resource_ids)
         if unknown:
             errors.append(f"{rel}: unknown resource IDs {unknown}")
+
+    for week_id in sorted(VALID_WEEKS):
+        public_week = ROOT / "weeks" / week_id
+        for required_file in ("README.md", "RESOURCES.md"):
+            if not (public_week / required_file).is_file():
+                errors.append(f"{public_week.relative_to(ROOT)}: missing {required_file}")
+        readme_path = public_week / "README.md"
+        if not readme_path.is_file():
+            continue
+        readme = readme_path.read_text(encoding="utf-8")
+        has_preview = "> Preview:" in readme
+        contract_status = week_contracts.get(week_id, {}).get("status")
+        is_runnable = contract_status in RUNNABLE_STATUS
+        if is_runnable and has_preview:
+            errors.append(
+                f"weeks/{week_id}/README.md: machine status {contract_status!r} requires a runnable page without Preview"
+            )
+        if not is_runnable and not has_preview:
+            reason = f"machine status {contract_status!r}" if contract_status is not None else "no machine contract"
+            errors.append(f"weeks/{week_id}/README.md: {reason} requires the Preview banner")
     if errors:
         for error in errors:
             print(f"ERROR {error}")

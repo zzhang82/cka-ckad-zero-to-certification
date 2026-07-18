@@ -25,9 +25,12 @@ From WSL:
 ```bash
 python3 _project/scripts/quality/validate_repo.py
 python3 _project/scripts/quality/check_links.py
+python3 _project/scripts/quality/test_check_links.py
 bash -n study _project/scripts/environment/*.sh _project/scripts/learner/*.sh
+bash -n _project/labs/shared/week0-smoke/*.sh _project/labs/cka/week1/*/*.sh _project/diagnostics/week0-placement/*.sh
 bash _project/scripts/quality/test_target_guards.sh
 python3 _project/diagnostics/week0-placement/test_grader.py
+python3 _project/labs/cka/week1/test_grader.py
 bash _project/scripts/quality/test_study_cli.sh
 ```
 
